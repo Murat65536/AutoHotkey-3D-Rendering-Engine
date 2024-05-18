@@ -65,14 +65,14 @@ Player := ctypes.struct("int x, y, z; int a; int l;")({
 })
 
 wallLen := 1
-walls := []
+walls := Array()
 while (wallLen <= 30) {
 	walls.InsertAt(wallLen, ctypes.struct("int x1, y1; int x2, y2; int c;"))
 	wallLen++
 }
 
 sectorLen := 1
-Sectors := []
+Sectors := Array()
 while (sectorLen <= 30) {
 	Sectors.InsertAt(sectorLen, ctypes.struct("int ws; int we; int z1, z2; int d; int c1, c2;"))
 	sectorLen++
@@ -88,8 +88,8 @@ Main()
 return
 
 Main() {
-	Math.cosvar := []
-	Math.sinvar := []
+	Math.cosvar := Array()
+	Math.sinvar := Array()
 	deg := 1
 	while (deg <= 360) {
 		Math.cosvar.InsertAt(deg, Cos((deg - 1) / 180 * (ATan(1) * 4)))
