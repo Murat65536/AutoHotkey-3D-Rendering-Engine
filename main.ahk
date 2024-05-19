@@ -218,18 +218,18 @@ MovePlayer() {
 }
 
 ClipBehindPlayer(x1, y1, z1, x2, y2, z2) {
-	d := y1 - y2
-	if (d == 0) {
-		d := 1
-	}
-	s := y1 / (y1 - y2)
-	x1 += s * (x2 - x1)
-	y1 += s * (y2 - y1)
-	if (y1 == 0) {
-		y1 := 1
-	}
-	z1 += s * (z2 - z1)
-	return [x1, y1, z1]
+    deltaY := y1 - y2
+    if (deltaY == 0) {
+        deltaY := 1
+    }
+    ratio := y1 / (y1 - y2)
+    x1 += ratio * (x2 - x1)
+    y1 += ratio * (y2 - y1)
+    if (y1 == 0) {
+        y1 := 1
+    }
+    z1 += ratio * (z2 - z1)
+    return [x1, y1, z1]
 }
 
 DrawWall(x1, x2, b1, b2, t1, t2, c, s) {
