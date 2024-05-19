@@ -288,10 +288,8 @@ ClearBackground() {
 	global G
 	global hBitmap
 
-	try {
-		Gdip_DeleteGraphics(G)
-		Gdip_DisposeImage(pBitmap)
-	}
+	Gdip_DeleteGraphics(G)
+	Gdip_DisposeImage(pBitmap)
 	pBitmap := Gdip_CreateBitmap(Posw, Posh)
 	G := Gdip_GraphicsFromImage(pBitmap)
 }
