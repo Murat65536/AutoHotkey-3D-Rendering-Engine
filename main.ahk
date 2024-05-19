@@ -154,7 +154,6 @@ Polygon(coords, color) {
 	Gdip_FillPolygon(G, pBrush, coords)
 	Gdip_DeleteBrush(pBrush)
 	global hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
-	SetImage(Canvas.Hwnd, hBitmap)
 	return
 }
 
@@ -395,6 +394,7 @@ Draw3D() {
 		Sectors[s].d /= (Sectors[s].we - Sectors[s].ws)
 		s++
 	}
+	SetImage(Canvas.Hwnd, hBitmap)
 	return
 }
 
