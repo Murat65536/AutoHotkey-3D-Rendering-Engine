@@ -347,33 +347,31 @@ Draw3D() {
 			wy := [y1 * CS + x1 * SN, y2 * CS + x2 * SN, y1 * CS + x1 * SN, y2 * CS + x2 * SN]
 			Sectors[s].d += Dist(0, 0, (wx[1] + wx[2]) / 2, (wy[1] + wy[2]) / 2)
 			wz := [Sectors[s].z1 - Player.z + ((Player.l * wy[1]) / 32), Sectors[s].z1 - Player.z + ((Player.l * wy[2]) / 32), (0 - Player.z + ((Player.l * wy[1]) / 32)) + Sectors[s].z2, (0 - Player.z + ((Player.l * wy[2]) / 32)) + Sectors[s].z2]
-			if (wy[1] < 1 && wy[2] < 1) {
-				w++
-				continue
+			if (wy[1] > 1 && wy[2] > 1) {
+				if (wy[1] < 1) {
+					clip := ClipBehindPlayer(wx[1], wy[1], wz[1], wx[2], wy[2], wz[2])
+					wx[1] := clip[1]
+					wy[1] := clip[2]
+					wz[1] := clip[3]
+					clip := ClipBehindPlayer(wx[3], wy[3], wz[3], wx[4], wy[4], wz[4])
+					wx[3] := clip[1]
+					wy[3] := clip[2]
+					wz[3] := clip[3]
+				}
+				if (wy[2] < 1) {
+					clip := ClipBehindPlayer(wx[2], wy[2], wz[2], wx[1], wy[1], wz[1])
+					wx[2] := clip[1]
+					wy[2] := clip[2]
+					wz[2] := clip[3]
+					clip := ClipBehindPlayer(wx[4], wy[4], wz[4], wx[3], wy[3], wz[3])
+					wx[4] := clip[1]
+					wy[4] := clip[2]
+					wz[4] := clip[3]
+				}
+				wx := [wx[1] * 200 / wy[1] + (WindowWidth / 2), wx[2] * 200 / wy[2] + (WindowWidth / 2), wx[3] * 200 / wy[3] + (WindowWidth / 2), wx[4] * 200 / wy[4] + (WindowWidth / 2)]
+				wy := [wz[1] * 200 / wy[1] + (WindowHeight / 2), wz[2] * 200 / wy[2] + (WindowHeight / 2), wz[3] * 200 / wy[3] + (WindowHeight / 2), wz[4] * 200 / wy[4] + (WindowHeight / 2)]
+				DrawWall(wx[1], wx[2], wy[1], wy[2], wy[3], wy[4], walls[w + 1].c, s)
 			}
-			if (wy[1] < 1) {
-				clip := ClipBehindPlayer(wx[1], wy[1], wz[1], wx[2], wy[2], wz[2])
-				wx[1] := clip[1]
-				wy[1] := clip[2]
-				wz[1] := clip[3]
-				clip := ClipBehindPlayer(wx[3], wy[3], wz[3], wx[4], wy[4], wz[4])
-				wx[3] := clip[1]
-				wy[3] := clip[2]
-				wz[3] := clip[3]
-			}
-			if (wy[2] < 1) {
-				clip := ClipBehindPlayer(wx[2], wy[2], wz[2], wx[1], wy[1], wz[1])
-				wx[2] := clip[1]
-				wy[2] := clip[2]
-				wz[2] := clip[3]
-				clip := ClipBehindPlayer(wx[4], wy[4], wz[4], wx[3], wy[3], wz[3])
-				wx[4] := clip[1]
-				wy[4] := clip[2]
-				wz[4] := clip[3]
-			}
-			wx := [wx[1] * 200 / wy[1] + (WindowWidth / 2), wx[2] * 200 / wy[2] + (WindowWidth / 2), wx[3] * 200 / wy[3] + (WindowWidth / 2), wx[4] * 200 / wy[4] + (WindowWidth / 2)]
-			wy := [wz[1] * 200 / wy[1] + (WindowHeight / 2), wz[2] * 200 / wy[2] + (WindowHeight / 2), wz[3] * 200 / wy[3] + (WindowHeight / 2), wz[4] * 200 / wy[4] + (WindowHeight / 2)]
-			DrawWall(wx[1], wx[2], wy[1], wy[2], wy[3], wy[4], walls[w + 1].c, s)
 			w++
 		}
 		Sectors[s].d /= (Sectors[s].we - Sectors[s].ws)
