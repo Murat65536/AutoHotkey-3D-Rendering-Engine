@@ -26,33 +26,33 @@ Window.Height := WindowHeight
 numSect := 4
 numWall := 16
 
-loadSectors := [
-	0, 4, 0, 40, 2, 3,
-	4, 8, 0, 40, 4, 5,
-	8, 12, 0, 40, 6, 7,
-	12, 16, 0, 40, 0, 1
+SectorData := [
+	[0, 4, 0, 40, 2, 3],
+	[4, 8, 0, 40, 4, 5],
+	[8, 12, 0, 40, 6, 7],
+	[12, 16, 0, 40, 0, 1]
 ]
 
-loadWalls := [
-	0, 0, 32, 0, 0,
-	32, 0, 32, 32, 1,
-	32, 32, 0,32, 0,
-	0, 32, 0, 0, 1,
+WallData := [
+	[0, 0, 32, 0, 0],
+	[32, 0, 32, 32, 1],
+	[32, 32, 0,32, 0],
+	[0, 32, 0, 0, 1],
 	
-	64, 0, 96, 0, 2,
-	96, 0, 96, 32, 3,
-	96, 32, 64, 32, 2,
-	64,32, 64, 0, 3,
+	[64, 0, 96, 0, 2],
+	[96, 0, 96, 32, 3],
+	[96, 32, 64, 32, 2],
+	[64,32, 64, 0, 3],
 	
-	64, 64, 96, 64, 4,
-	96, 64, 96, 96, 5,
-	96, 96, 64, 96, 4,
-	64, 96, 64, 64, 5,
+	[64, 64, 96, 64, 4],
+	[96, 64, 96, 96, 5],
+	[96, 96, 64, 96, 4],
+	[64, 96, 64, 64, 5],
 	
-	0, 64, 32, 64, 6,
-	32, 64, 32, 96, 7,
-	32, 96, 0, 96, 6,
-	0, 96, 0, 64, 7
+	[0, 64, 32, 64, 6],
+	[32, 64, 32, 96, 7],
+	[32, 96, 0, 96, 6],
+	[0, 96, 0, 64, 7]
 ]
 
 Math := {
@@ -100,24 +100,24 @@ Main() {
 	}
 	
 	s := 1
-	v1 := 0
-	v2 := 0
+	v1 := 1
+	v2 := 1
 	while (s <= numSect) {
-		Sectors[s].ws := loadSectors[v1 + 1]
-		Sectors[s].we := loadSectors[v1 + 2]
-		Sectors[s].z1 := loadSectors[v1 + 3]
-		Sectors[s].z2 := loadSectors[v1 + 4] - loadSectors[v1 + 3]
-		Sectors[s].c1 := loadSectors[v1 + 5]
-		Sectors[s].c2 := loadSectors[v1 + 6]
-		v1 += 6
+		Sectors[s].ws := SectorData[v1][1]
+		Sectors[s].we := SectorData[v1][2]
+		Sectors[s].z1 := SectorData[v1][3]
+		Sectors[s].z2 := SectorData[v1][4] - SectorData[v1][3]
+		Sectors[s].c1 := SectorData[v1][5]
+		Sectors[s].c2 := SectorData[v1][6]
+		v1++
 		w := Sectors[s].ws
 		while (w < Sectors[s].we) {
-			walls[w + 1].x1 := loadWalls[v2 + 1]
-			walls[w + 1].y1 := loadWalls[v2 + 2]
-			walls[w + 1].x2 := loadWalls[v2 + 3]
-			walls[w + 1].y2 := loadWalls[v2 + 4]
-			walls[w + 1].c := loadWalls[v2 + 5]
-			v2 += 5
+			walls[w + 1].x1 := WallData[v2][1]
+			walls[w + 1].y1 := WallData[v2][2]
+			walls[w + 1].x2 := WallData[v2][3]
+			walls[w + 1].y2 := WallData[v2][4]
+			walls[w + 1].c := WallData[v2][5]
+			v2++
 			w++
 		}
 		s++
