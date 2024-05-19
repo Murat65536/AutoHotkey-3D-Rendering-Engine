@@ -82,8 +82,6 @@ while (sectorLen <= 30) {
 	sectorLen++
 }
 
-ReloadFrame := true
-
 Canvas.GetPos(,, &Posw, &Posh)
 pBitmap := Gdip_CreateBitmap(Posw, Posh)
 G := Gdip_GraphicsFromImage(pBitmap)
@@ -158,7 +156,6 @@ Polygon(coords, color) {
 }
 
 MovePlayer() {
-	global ReloadFrame
 	
 	Up := GetKeyState('w')
 	Left := GetKeyState('a')
@@ -173,60 +170,50 @@ MovePlayer() {
 	if (Up == 1) {
 		if (Look == 1) {
 			Player.z -= 4
-			ReloadFrame := true
 		}
 		else {
 			Player.x += dx
 			Player.y += dy
-			ReloadFrame := true
 		}
 	}
 	if (Down == 1) {
 		if (Look == 1) {
 			Player.z += 4
-			ReloadFrame := true
 		}
 		else {
 			Player.x -= dx
 			Player.y -= dy
-			ReloadFrame := true
 		}
 	}
 	if (Left == 1) {
 		if (Look == 1){
 			Player.l -= 1
-			ReloadFrame := true
 		}
 		else {
 			Player.a -= 4
 			if (Player.a < 0) {
 				Player.a += 360
 			}
-			ReloadFrame := true
 		}
 	}
 	if (Right == 1) {
 		if (Look == 1) {
 			Player.l += 1
-			ReloadFrame := true
 		}
 		else {
 			Player.a += 4
 			if (Player.a > 359) {
 				Player.a -= 360
 			}
-			ReloadFrame := true
 		}
 	}
 	if (StrafeLeft == 1) {
 		Player.x += dy
 		Player.y -= dx
-		ReloadFrame := true
 	}
 	if (StrafeRight == 1) {
 		Player.x -= dy
 		Player.y += dx
-		ReloadFrame := true
 	}
 }
 
@@ -399,15 +386,11 @@ Draw3D() {
 }
 
 Display() {
-	global ReloadFrame
 	
 	loop {
 		MovePlayer()
-		if (ReloadFrame) {
-			Draw3D()
-			ClearBackground()
-			ReloadFrame := false
-		}
+		Draw3D()
+		ClearBackground()
 	}
 	return
 }
