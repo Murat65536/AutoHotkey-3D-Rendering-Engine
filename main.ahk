@@ -1,25 +1,26 @@
 #SingleInstance Force
 #Requires AutoHotkey v2.0.15+
-#Include Gdip_all.ahk
-#Include ctypes.ahk
+#Include libraries\Gdip_all.ahk
+
 
 ; Start gdi+
 If !pToken := Gdip_Startup()
 {
-	MsgBox("Gdiplus failed to start. Please ensure you have gdiplus on your system")
+	MsgBox('Gdiplus failed to start. Please ensure you have gdiplus on your system')
 	ExitApp
 }
 OnExit ExitFunc
 
 WindowWidth := 640
 WindowHeight := 480
-Window := Gui("-DPIScale +E0x02000000 +E0x00080000")
-Window.OnEvent("Close", Gui_Close)
-Window.Title := "3D Rendering Engine"
-Window.BackColor := "000000"
-Screen := Window.add("Picture", "x0 y0 w" . WindowWidth . " h" . WindowHeight . " 0xE")
+Window := Gui('-DPIScale')
+Window.OnEvent('Close', Gui_Close)
+Window.Title := '3D Rendering Engine'
+Window.BackColor := '000000'
+Canvas := Window.add('Picture', 'x0 y0 w' WindowWidth ' h' WindowHeight ' 0xE')
 Window.Show()
-Window.Move(WindowWidth / 2, WindowHeight / 2, WindowWidth, WindowHeight)
+Window.Width := WindowWidth
+Window.Height := WindowHeight
 ; Window.Maximize()
 
 numSect := 4
@@ -54,33 +55,36 @@ loadWalls := [
 	0, 96, 0, 64, 7
 ]
 
-Math := ctypes.struct("float cosvar; float sinvar;")
+Math := {
+	cosvar: Array(),
+	sinvar: Array()
+}
 
-Player := ctypes.struct("int x, y, z; int a; int l;")({
+Player := {
 	x: 70,
 	y: -110,
 	z: 20,
 	a: 0,
-	1: 0
-})
+	l: 0
+}
 
 wallLen := 1
 walls := Array()
 while (wallLen <= 30) {
-	walls.InsertAt(wallLen, ctypes.struct("int x1, y1; int x2, y2; int c;"))
+	walls.InsertAt(wallLen, {x1: unset, y1: unset, x2: unset, y2: unset, c: unset})
 	wallLen++
 }
 
 sectorLen := 1
 Sectors := Array()
 while (sectorLen <= 30) {
-	Sectors.InsertAt(sectorLen, ctypes.struct("int ws; int we; int z1, z2; int d; int c1, c2;"))
+	Sectors.InsertAt(sectorLen, {ws: unset, we: unset, z1: unset, z2: unset, d: unset, c1: unset, c2: unset})
 	sectorLen++
 }
 
 ReloadFrame := true
 
-Screen.GetPos(,, &Posw, &Posh)
+Canvas.GetPos(,, &Posw, &Posh)
 pBitmap := Gdip_CreateBitmap(Posw, Posh)
 G := Gdip_GraphicsFromImage(pBitmap)
 
@@ -88,8 +92,6 @@ Main()
 return
 
 Main() {
-	Math.cosvar := Array()
-	Math.sinvar := Array()
 	deg := 1
 	while (deg <= 360) {
 		Math.cosvar.InsertAt(deg, Cos((deg - 1) / 180 * (ATan(1) * 4)))
@@ -125,79 +127,97 @@ Main() {
 }
 
 Polygon(coords, color) {
-	rgb := 0x00000000
-	if (color == 0) {
-		rgb := 0xFFFFFFFF
-	}
-	if (color == 1) {
-		rgb := 0xFFA0A000
-	}
-	if (color == 2) {
-		rgb := 0xFF00FF00
-	}
-	if (color == 3) {
-		rgb := 0xFF00A000
-	}
-	if (color == 4) {
-		rgb := 0xFF00FFFF
-	}
-	if (color == 5) {
-		rgb := 0xFF00A0A0
-	}
-	if (color == 6) {
-		rgb := 0xFFA06400
-	}
-	if (color == 7) {
-		rgb := 0xFF6E3200
-	}
-	if (color == 8) {
-		rgb := 0xFF003C82
+	switch color {
+		case 0:
+			rgb := 0xFFFFFFFF
+		case 1:
+			rgb := 0xFFA0A000
+		case 2:
+			rgb := 0xFF00FF00
+		case 3:
+			rgb := 0xFF00A000
+		case 4:
+			rgb := 0xFF00FFFF
+		case 5:
+			rgb := 0xFF00A0A0
+		case 6:
+			rgb := 0xFFA06400
+		case 7:
+			rgb := 0xFF6E3200
+		case 8:
+			rgb := 0xFF003C82
+		default:
+			rgb := 0x00000000
 	}
 	Gdip_SetSmoothingMode(G, 4)
 	pBrush := Gdip_BrushCreateSolid(rgb)
 	Gdip_FillPolygon(G, pBrush, coords)
 	Gdip_DeleteBrush(pBrush)
 	global hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
-	SetImage(Screen.Hwnd, hBitmap)
+	SetImage(Canvas.Hwnd, hBitmap)
 	return
 }
 
 MovePlayer() {
 	global ReloadFrame
 	
-	Up := GetKeyState("w")
-	Left := GetKeyState("a")
-	Right := GetKeyState("d")
-	Down := GetKeyState("s")
-	Look := GetKeyState("m")
-	StrafeLeft := GetKeyState("left")
-	StrafeRight := GetKeyState("right")
+	Up := GetKeyState('w')
+	Left := GetKeyState('a')
+	Right := GetKeyState('d')
+	Down := GetKeyState('s')
+	Look := GetKeyState('m')
+	StrafeLeft := GetKeyState('left')
+	StrafeRight := GetKeyState('right')
 	
 	dx := Math.cosvar[Player.a + 1] * 10
 	dy := Math.sinvar[Player.a + 1] * 10
-	if (Up == 1 && Look == 0) {
-		Player.x += dx
-		Player.y += dy
-		ReloadFrame := true
-	}
-	if (Down == 1 && Look == 0) {
-		Player.x -= dx
-		Player.y -= dy
-		ReloadFrame := true
-	}
-	if (Left == 1 && Look == 0) {
-		Player.a -= 4
-		if (Player.a < 0) {
-			Player.a += 360
+	if (Up == 1) {
+		if (Look == 1) {
+			Player.z -= 4
+			ReloadFrame := true
 		}
-		ReloadFrame := true
-	}
-	if (Right == 1 && Look == 0) {
-		Player.a += 4
-		if (Player.a > 359) {
-			Player.a -= 360
+		else {
+			Player.x += dx
+			Player.y += dy
+			ReloadFrame := true
 		}
-		ReloadFrame := true
+	}
+	if (Down == 1) {
+		if (Look == 1) {
+			Player.z += 4
+			ReloadFrame := true
+		}
+		else {
+			Player.x -= dx
+			Player.y -= dy
+			ReloadFrame := true
+		}
+	}
+	if (Left == 1) {
+		if (Look == 1){
+			Player.l -= 1
+			ReloadFrame := true
+		}
+		else {
+			Player.a -= 4
+			if (Player.a < 0) {
+				Player.a += 360
+			}
+			ReloadFrame := true
+		}
+	}
+	if (Right == 1) {
+		if (Look == 1) {
+			Player.l += 1
+			ReloadFrame := true
+		}
+		else {
+			Player.a += 4
+			if (Player.a > 359) {
+				Player.a -= 360
+			}
+			ReloadFrame := true
+		}
 	}
 	if (StrafeLeft == 1) {
 		Player.x += dy
@@ -209,32 +229,14 @@ MovePlayer() {
 		Player.y += dx
 		ReloadFrame := true
 	}
-	if (Up == 1 && Look == 1) {
-		Player.z -= 4
-		ReloadFrame := true
-	}
-	if (Down == 1 && Look == 1) {
-		Player.z += 4
-		ReloadFrame := true
-	}
-	if (Left == 1 && Look == 1) {
-		Player.l -= 1
-		ReloadFrame := true
-	}
-	if (Right == 1 && Look == 1) {
-		Player.l += 1
-		ReloadFrame := true
-	}
 }
 
 ClipBehindPlayer(x1, y1, z1, x2, y2, z2) {
-	da := y1
-	db := y2
-	d := da - db
+	d := y1 - y2
 	if (d == 0) {
 		d := 1
 	}
-	s := da / (da - db)
+	s := y1 / (y1 - y2)
 	x1 += s * (x2 - x1)
 	y1 += s * (y2 - y1)
 	if (y1 == 0) {
@@ -245,9 +247,6 @@ ClipBehindPlayer(x1, y1, z1, x2, y2, z2) {
 }
 
 DrawWall(x1, x2, b1, b2, t1, t2, c, s) {
-	global WindowWidth
-	global WindowHeight
-	
 	dyb := b2 - b1
 	dyt := t2 - t1
 	dx := x2 - x1
@@ -258,13 +257,13 @@ DrawWall(x1, x2, b1, b2, t1, t2, c, s) {
 	if (x1 < 0) {
 		x1 := 0
 	}
+	else if (x1 > WindowWidth) {
+		x1 := WindowWidth
+	}
 	if (x2 < 0) {
 		x2 := 0
 	}
-	if (x1 > WindowWidth) {
-		x1 := WindowWidth
-	}
-	if (x2 > WindowWidth) {
+	else if (x2 > WindowWidth) {
 		x2 := WindowWidth
 	}
 	y1 := dyb * (x1 - xs + 0.5) / dx + b1
@@ -274,28 +273,28 @@ DrawWall(x1, x2, b1, b2, t1, t2, c, s) {
 	if (y1 < 0) {
 		y1 := 0
 	}
+	else if (y1 > WindowHeight) {
+		y1 := WindowHeight
+	}
 	if (y2 < 0) {
 		y2 := 0
+	}
+	else if (y2 > WindowHeight) {
+		y2 := WindowHeight
 	}
 	if (y3 < 0) {
 		y3 := 0
 	}
+	else if (y3 > WindowHeight) {
+		y3 := WindowHeight
+	}
 	if (y4 < 0) {
 		y4 := 0
 	}
-	if (y1 > WindowHeight) {
-		y1 := WindowHeight
-	}
-	if (y2 > WindowHeight) {
-		y2 := WindowHeight
-	}
-	if (y3 > WindowHeight) {
-		y3 := WindowHeight
-	}
-	if (y4 > WindowHeight) {
+	else if (y4 > WindowHeight) {
 		y4 := WindowHeight
 	}
-	Polygon(x1 . "," . y1 . "|" . x1 . "," . y2 . "|" . x2 . "," . y4 . "|" . x2 . "," . y3, c)
+	Polygon(x1 ',' y1 '|' x1 ',' y2 '|' x2 ',' y4 '|' x2 ',' y3, c)
 }
 
 ClearBackground() {
@@ -306,12 +305,9 @@ ClearBackground() {
 	try {
 		Gdip_DeleteGraphics(G)
 		Gdip_DisposeImage(pBitmap)
-		DeleteObject(hBitmap)
 	}
-	SetImage(Screen.Hwnd, 0)
 	pBitmap := Gdip_CreateBitmap(Posw, Posh)
 	G := Gdip_GraphicsFromImage(pBitmap)
-	hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
 }
 
 Dist(x1, y1, x2, y2) {
@@ -321,19 +317,17 @@ Dist(x1, y1, x2, y2) {
 
 Draw3D() {
 	global Player
-	global WindowWidth
-	global WindowHeight
 	s := 1
 	while (s <= numSect) {
 		Sectors[s].d := 0
-		w := Sectors[s].ws
+		w := Sectors[s].ws + 1
 		while (w < Sectors[s].we) {
 			CS := Math.cosvar[Player.a + 1]
 			SN := Math.sinvar[Player.a + 1]
-			x1 := walls[w + 1].x1 - Player.x
-			y1 := walls[w + 1].y1 - Player.y
-			x2 := walls[w + 1].x2 - Player.x
-			y2 := walls[w + 1].y2 - Player.y
+			x1 := walls[w].x1 - Player.x
+			y1 := walls[w].y1 - Player.y
+			x2 := walls[w].x2 - Player.x
+			y2 := walls[w].y2 - Player.y
 			wx := [x1 * CS - y1 * SN, x2 * CS - y2 * SN, x1 * CS - y1 * SN, x2 * CS - y2 * SN]
 			wy := [y1 * CS + x1 * SN, y2 * CS + x2 * SN, y1 * CS + x1 * SN, y2 * CS + x2 * SN]
 			Sectors[s].d += Dist(0, 0, (wx[1] + wx[2]) / 2, (wy[1] + wy[2]) / 2)
@@ -410,8 +404,8 @@ Display() {
 	loop {
 		MovePlayer()
 		if (ReloadFrame) {
-			ClearBackground()
 			Draw3D()
+			ClearBackground()
 			ReloadFrame := false
 		}
 	}
