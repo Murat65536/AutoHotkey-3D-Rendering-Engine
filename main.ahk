@@ -3,7 +3,6 @@
 #Include libraries\Gdip_all.ahk
 
 
-; Start gdi+
 If !pToken := Gdip_Startup()
 {
 	MsgBox('Gdiplus failed to start. Please ensure you have gdiplus on your system')
@@ -23,8 +22,8 @@ Window.Width := WindowWidth
 Window.Height := WindowHeight
 ; Window.Maximize()
 
-numSect := 4
-numWall := 16
+NumSect := 4
+NumWall := 16
 
 SectorData := [
 	[0, 4, 0, 40, 2, 3],
@@ -70,14 +69,14 @@ Player := {
 
 wallLen := 1
 walls := Array()
-while (wallLen <= 30) {
+Loop (30) {
 	walls.InsertAt(wallLen, {x1: unset, y1: unset, x2: unset, y2: unset, c: unset})
 	wallLen++
 }
 
 sectorLen := 1
 Sectors := Array()
-while (sectorLen <= 30) {
+Loop (30) {
 	Sectors.InsertAt(sectorLen, {ws: unset, we: unset, z1: unset, z2: unset, d: unset, c1: unset, c2: unset})
 	sectorLen++
 }
@@ -87,20 +86,19 @@ pBitmap := Gdip_CreateBitmap(Posw, Posh)
 G := Gdip_GraphicsFromImage(pBitmap)
 
 Main()
-return
 
 Main() {
 	deg := 1
-	while (deg <= 360) {
-		Math.cosvar.InsertAt(deg, Cos((deg - 1) / 180 * (ATan(1) * 4)))
+	Loop (360) {
 		Math.sinvar.InsertAt(deg, Sin((deg - 1) / 180 * (ATan(1) * 4)))
+		Math.cosvar.InsertAt(deg, Cos((deg - 1) / 180 * (ATan(1) * 4)))
 		deg++
 	}
 	
 	s := 1
 	v1 := 1
 	v2 := 1
-	while (s <= numSect) {
+	Loop (NumSect) {
 		Sectors[s].ws := SectorData[v1][1]
 		Sectors[s].we := SectorData[v1][2]
 		Sectors[s].z1 := SectorData[v1][3]
@@ -109,7 +107,7 @@ Main() {
 		Sectors[s].c2 := SectorData[v1][6]
 		v1++
 		w := Sectors[s].ws
-		while (w < Sectors[s].we) {
+		Loop (Sectors[s].we - Sectors[s].ws) {
 			walls[w + 1].x1 := WallData[v2][1]
 			walls[w + 1].y1 := WallData[v2][2]
 			walls[w + 1].x2 := WallData[v2][3]
@@ -165,8 +163,8 @@ MovePlayer() {
 	StrafeLeft := GetKeyState('left')
 	StrafeRight := GetKeyState('right')
 	
-	dx := Math.cosvar[Player.a + 1] * 10
-	dy := Math.sinvar[Player.a + 1] * 10
+	dx := Math.sinvar[Player.a + 1] * 10
+	dy := Math.cosvar[Player.a + 1] * 10
 	if (Up == 1) {
 		if (Look == 1) {
 			Player.z -= 4
@@ -286,7 +284,6 @@ DrawWall(x1, x2, b1, b2, t1, t2, c, s) {
 ClearBackground() {
 	global pBitmap
 	global G
-	global hBitmap
 
 	Gdip_DeleteGraphics(G)
 	Gdip_DisposeImage(pBitmap)
@@ -302,7 +299,7 @@ Dist(x1, y1, x2, y2) {
 Draw3D() {
 	global Player
 	s := 1
-	while (s <= numSect) {
+	Loop (NumSect) {
 		Sectors[s].d := 0
 		w := Sectors[s].ws + 1
 		while (w < Sectors[s].we) {
@@ -320,9 +317,9 @@ Draw3D() {
 		s++
 	}
 	s := 0
-	while (s < numSect - 1) {
+	while (s < NumSect - 1) {
 		w := 1
-		while (w <= numSect - s - 1) {
+		while (w <= NumSect - s - 1) {
 			if (Sectors[w].d < Sectors[w + 1].d) {
 				st := Sectors[w]
 				Sectors[w] := Sectors[w + 1]
@@ -333,15 +330,15 @@ Draw3D() {
 		s++
 	}
 	s := 1
-	while (s <= numSect) {
+	while (s <= NumSect) {
 		Sectors[s].d := 0
 		w := Sectors[s].ws
 		while (w < Sectors[s].we) {
 			CS := Math.cosvar[Player.a + 1]
 			SN := Math.sinvar[Player.a + 1]
 			x1 := walls[w + 1].x1 - Player.x
-			y1 := walls[w + 1].y1 - Player.y
 			x2 := walls[w + 1].x2 - Player.x
+			y1 := walls[w + 1].y1 - Player.y
 			y2 := walls[w + 1].y2 - Player.y
 			wx := [x1 * CS - y1 * SN, x2 * CS - y2 * SN, x1 * CS - y1 * SN, x2 * CS - y2 * SN]
 			wy := [y1 * CS + x1 * SN, y2 * CS + x2 * SN, y1 * CS + x1 * SN, y2 * CS + x2 * SN]
@@ -382,8 +379,7 @@ Draw3D() {
 }
 
 Display() {
-	
-	loop {
+	Loop {
 		MovePlayer()
 		Draw3D()
 		ClearBackground()
@@ -392,14 +388,13 @@ Display() {
 }
 
 Gui_Close(GuiObj) {
-GuiClose:
-	ExitApp
-return
+	GuiClose:
+		ExitApp
+	return
 }
 
 ExitFunc(ExitReason, ExitCode)
 {
 	global
-	; gdi+ may now be shutdown
 	Gdip_Shutdown(pToken)
 }
