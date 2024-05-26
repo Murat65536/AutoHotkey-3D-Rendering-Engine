@@ -88,35 +88,28 @@ G := Gdip_GraphicsFromImage(pBitmap)
 Main()
 
 Main() {
-	deg := 1
 	Loop (360) {
-		Math.sinvar.InsertAt(deg, Sin((deg - 1) / 180 * (ATan(1) * 4)))
-		Math.cosvar.InsertAt(deg, Cos((deg - 1) / 180 * (ATan(1) * 4)))
-		deg++
+		Math.sinvar.InsertAt(A_Index, Sin((A_Index - 1) / 180 * (ATan(1) * 4)))
+		Math.cosvar.InsertAt(A_Index, Cos((A_Index - 1) / 180 * (ATan(1) * 4)))
 	}
 	
-	s := 1
-	v1 := 1
 	v2 := 1
 	Loop (NumSect) {
-		Sectors[s].ws := SectorData[v1][1]
-		Sectors[s].we := SectorData[v1][2]
-		Sectors[s].z1 := SectorData[v1][3]
-		Sectors[s].z2 := SectorData[v1][4] - SectorData[v1][3]
-		Sectors[s].c1 := SectorData[v1][5]
-		Sectors[s].c2 := SectorData[v1][6]
-		v1++
-		w := Sectors[s].ws
-		Loop (Sectors[s].we - Sectors[s].ws) {
-			walls[w + 1].x1 := WallData[v2][1]
-			walls[w + 1].y1 := WallData[v2][2]
-			walls[w + 1].x2 := WallData[v2][3]
-			walls[w + 1].y2 := WallData[v2][4]
-			walls[w + 1].c := WallData[v2][5]
+		Sectors[A_Index].ws := SectorData[A_Index][1]
+		Sectors[A_Index].we := SectorData[A_Index][2]
+		Sectors[A_Index].z1 := SectorData[A_Index][3]
+		Sectors[A_Index].z2 := SectorData[A_Index][4] - SectorData[A_Index][3]
+		Sectors[A_Index].c1 := SectorData[A_Index][5]
+		Sectors[A_Index].c2 := SectorData[A_Index][6]
+		w := Sectors[A_Index].ws
+		Loop (Sectors[A_Index].we - Sectors[A_Index].ws) {
+			walls[w + A_Index].x1 := WallData[v2][1]
+			walls[w + A_Index].y1 := WallData[v2][2]
+			walls[w + A_Index].x2 := WallData[v2][3]
+			walls[w + A_Index].y2 := WallData[v2][4]
+			walls[w + A_Index].c := WallData[v2][5]
 			v2++
-			w++
 		}
-		s++
 	}
 	
 	Display()
@@ -206,12 +199,12 @@ MovePlayer() {
 		}
 	}
 	if (StrafeLeft == 1) {
-		Player.x += dy
-		Player.y -= dx
-	}
-	if (StrafeRight == 1) {
 		Player.x -= dy
 		Player.y += dx
+	}
+	if (StrafeRight == 1) {
+		Player.x += dy
+		Player.y -= dx
 	}
 }
 
@@ -301,45 +294,38 @@ Draw3D() {
 	s := 1
 	Loop (NumSect) {
 		Sectors[s].d := 0
-		w := Sectors[s].ws + 1
-		while (w < Sectors[s].we) {
+		Loop (Sectors[s].we - (Sectors[s].ws + 1)) {
 			CS := Math.cosvar[Player.a + 1]
 			SN := Math.sinvar[Player.a + 1]
-			x1 := walls[w].x1 - Player.x
-			y1 := walls[w].y1 - Player.y
-			x2 := walls[w].x2 - Player.x
-			y2 := walls[w].y2 - Player.y
+			x1 := walls[Sectors[s].ws + A_Index].x1 - Player.x
+			y1 := walls[Sectors[s].ws + A_Index].y1 - Player.y
+			x2 := walls[Sectors[s].ws + A_Index].x2 - Player.x
+			y2 := walls[Sectors[s].ws + A_Index].y2 - Player.y
 			wx := [x1 * CS - y1 * SN, x2 * CS - y2 * SN, x1 * CS - y1 * SN, x2 * CS - y2 * SN]
 			wy := [y1 * CS + x1 * SN, y2 * CS + x2 * SN, y1 * CS + x1 * SN, y2 * CS + x2 * SN]
 			Sectors[s].d += Dist(0, 0, (wx[1] + wx[2]) / 2, (wy[1] + wy[2]) / 2)
-			w++
 		}
 		s++
 	}
-	s := 0
-	while (s < NumSect - 1) {
-		w := 1
-		while (w <= NumSect - s - 1) {
-			if (Sectors[w].d < Sectors[w + 1].d) {
-				st := Sectors[w]
-				Sectors[w] := Sectors[w + 1]
-				Sectors[w + 1] := st
+	Loop (NumSect - 1) {
+		Loop (NumSect - (A_Index - 1) - 1) {
+			if (Sectors[A_Index].d < Sectors[A_Index + 1].d) {
+				st := Sectors[A_Index]
+				Sectors[A_Index] := Sectors[A_Index + 1]
+				Sectors[A_Index + 1] := st
 			}
-			w++
 		}
-		s++
 	}
 	s := 1
-	while (s <= NumSect) {
+	Loop (NumSect) {
 		Sectors[s].d := 0
-		w := Sectors[s].ws
-		while (w < Sectors[s].we) {
+		Loop (Sectors[s].we - Sectors[s].ws) {
 			CS := Math.cosvar[Player.a + 1]
 			SN := Math.sinvar[Player.a + 1]
-			x1 := walls[w + 1].x1 - Player.x
-			x2 := walls[w + 1].x2 - Player.x
-			y1 := walls[w + 1].y1 - Player.y
-			y2 := walls[w + 1].y2 - Player.y
+			x1 := walls[Sectors[s].ws + A_Index].x1 - Player.x
+			x2 := walls[Sectors[s].ws + A_Index].x2 - Player.x
+			y1 := walls[Sectors[s].ws + A_Index].y1 - Player.y
+			y2 := walls[Sectors[s].ws + A_Index].y2 - Player.y
 			wx := [x1 * CS - y1 * SN, x2 * CS - y2 * SN, x1 * CS - y1 * SN, x2 * CS - y2 * SN]
 			wy := [y1 * CS + x1 * SN, y2 * CS + x2 * SN, y1 * CS + x1 * SN, y2 * CS + x2 * SN]
 			Sectors[s].d += Dist(0, 0, (wx[1] + wx[2]) / 2, (wy[1] + wy[2]) / 2)
@@ -367,9 +353,8 @@ Draw3D() {
 				}
 				wx := [wx[1] * 200 / wy[1] + (WindowWidth / 2), wx[2] * 200 / wy[2] + (WindowWidth / 2), wx[3] * 200 / wy[3] + (WindowWidth / 2), wx[4] * 200 / wy[4] + (WindowWidth / 2)]
 				wy := [wz[1] * 200 / wy[1] + (WindowHeight / 2), wz[2] * 200 / wy[2] + (WindowHeight / 2), wz[3] * 200 / wy[3] + (WindowHeight / 2), wz[4] * 200 / wy[4] + (WindowHeight / 2)]
-				DrawWall(wx[1], wx[2], wy[1], wy[2], wy[3], wy[4], walls[w + 1].c, s)
+				DrawWall(wx[1], wx[2], wy[1], wy[2], wy[3], wy[4], walls[Sectors[s].ws + A_Index].c, s)
 			}
-			w++
 		}
 		Sectors[s].d /= (Sectors[s].we - Sectors[s].ws)
 		s++
