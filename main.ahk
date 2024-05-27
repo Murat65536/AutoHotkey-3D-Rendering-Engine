@@ -316,7 +316,7 @@ Draw3D() {
 	}
 	s := 1
 	Loop (NumSect) {
-		Sectors[s].d := 0
+		Sectors[A_Index].d := 0
 		Loop (Sectors[s].we - Sectors[s].ws) {
 			CS := Math.cosvar[Player.a + 1]
 			SN := Math.sinvar[Player.a + 1]
