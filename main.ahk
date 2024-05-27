@@ -143,7 +143,6 @@ Polygon(coords, color) {
 }
 
 MovePlayer() {
-	
 	Up := GetKeyState('w')
 	Left := GetKeyState('a')
 	Right := GetKeyState('d')
@@ -152,8 +151,8 @@ MovePlayer() {
 	StrafeLeft := GetKeyState('left')
 	StrafeRight := GetKeyState('right')
 	
-	dx := Math.sinvar[Player.a + 1] * 10
-	dy := Math.cosvar[Player.a + 1] * 10
+	dx := Math.sinvar[Player.a + 1]
+	dy := Math.cosvar[Player.a + 1]
 	If (Up == 1) {
 		If (Look == 1) {
 			Player.z -= 4
@@ -177,7 +176,7 @@ MovePlayer() {
 			Player.l -= 1
 		}
 		Else {
-			Player.a -= 4
+			Player.a -= 1
 			If (Player.a < 0) {
 				Player.a += 360
 			}
@@ -188,7 +187,7 @@ MovePlayer() {
 			Player.l += 1
 		}
 		Else {
-			Player.a += 4
+			Player.a += 1
 			If (Player.a > 359) {
 				Player.a -= 360
 			}
@@ -202,6 +201,8 @@ MovePlayer() {
 		Player.x += dy
 		Player.y -= dx
 	}
+	Print("dx: " dx)
+	Print("dy: " dy)
 }
 
 ClipBehindPlayer(x1, y1, z1, x2, y2, z2) {
@@ -273,11 +274,9 @@ DrawWall(x1, x2, b1, b2, t1, t2, c, s) {
 ClearBackground() {
 	global pBitmap
 	global G
-	global hBitmap
 
 	Gdip_DeleteGraphics(G)
 	Gdip_DisposeImage(pBitmap)
-	DeleteObject(hBitmap)
 	pBitmap := Gdip_CreateBitmap(Posw, Posh)
 	G := Gdip_GraphicsFromImage(pBitmap)
 }
@@ -357,8 +356,9 @@ Draw3D() {
 		Sectors[s].d /= (Sectors[s].we - Sectors[s].ws)
 		s++
 	}
-	global hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
+	hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
 	SetImage(Canvas.Hwnd, hBitmap)
+	DeleteObject(hBitmap)
 	Return
 }
 
