@@ -17,10 +17,7 @@ Window.OnEvent('Close', Gui_Close)
 Window.Title := '3D Rendering Engine'
 Window.BackColor := '000000'
 Canvas := Window.add('Picture', 'x0 y0 w' WindowWidth ' h' WindowHeight ' 0xE')
-Window.Show()
-Window.Width := WindowWidth
-Window.Height := WindowHeight
-; Window.Maximize()
+Window.Show("W " WindowWidth " H " WindowHeight)
 
 NumSect := 4
 NumWall := 16
@@ -142,8 +139,7 @@ Polygon(coords, color) {
 	pBrush := Gdip_BrushCreateSolid(rgb)
 	Gdip_FillPolygon(G, pBrush, coords)
 	Gdip_DeleteBrush(pBrush)
-	global hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
-	return
+	Return
 }
 
 MovePlayer() {
@@ -158,51 +154,51 @@ MovePlayer() {
 	
 	dx := Math.sinvar[Player.a + 1] * 10
 	dy := Math.cosvar[Player.a + 1] * 10
-	if (Up == 1) {
-		if (Look == 1) {
+	If (Up == 1) {
+		If (Look == 1) {
 			Player.z -= 4
 		}
-		else {
+		Else {
 			Player.x += dx
 			Player.y += dy
 		}
 	}
-	if (Down == 1) {
-		if (Look == 1) {
+	If (Down == 1) {
+		If (Look == 1) {
 			Player.z += 4
 		}
-		else {
+		Else {
 			Player.x -= dx
 			Player.y -= dy
 		}
 	}
-	if (Left == 1) {
-		if (Look == 1){
+	If (Left == 1) {
+		If (Look == 1){
 			Player.l -= 1
 		}
-		else {
+		Else {
 			Player.a -= 4
-			if (Player.a < 0) {
+			If (Player.a < 0) {
 				Player.a += 360
 			}
 		}
 	}
-	if (Right == 1) {
-		if (Look == 1) {
+	If (Right == 1) {
+		If (Look == 1) {
 			Player.l += 1
 		}
-		else {
+		Else {
 			Player.a += 4
-			if (Player.a > 359) {
+			If (Player.a > 359) {
 				Player.a -= 360
 			}
 		}
 	}
-	if (StrafeLeft == 1) {
+	If (StrafeLeft == 1) {
 		Player.x -= dy
 		Player.y += dx
 	}
-	if (StrafeRight == 1) {
+	If (StrafeRight == 1) {
 		Player.x += dy
 		Player.y -= dx
 	}
@@ -210,65 +206,65 @@ MovePlayer() {
 
 ClipBehindPlayer(x1, y1, z1, x2, y2, z2) {
     deltaY := y1 - y2
-    if (deltaY == 0) {
+    If (deltaY == 0) {
         deltaY := 1
     }
     ratio := y1 / (y1 - y2)
     x1 += ratio * (x2 - x1)
     y1 += ratio * (y2 - y1)
-    if (y1 == 0) {
+    If (y1 == 0) {
         y1 := 1
     }
     z1 += ratio * (z2 - z1)
-    return [x1, y1, z1]
+    Return [x1, y1, z1]
 }
 
 DrawWall(x1, x2, b1, b2, t1, t2, c, s) {
 	dyb := b2 - b1
 	dyt := t2 - t1
 	dx := x2 - x1
-	if (dx == 0) {
+	If (dx == 0) {
 		dx := 1
 	}
 	xs := x1
-	if (x1 < 0) {
+	If (x1 < 0) {
 		x1 := 0
 	}
-	else if (x1 > WindowWidth) {
+	Else If (x1 > WindowWidth) {
 		x1 := WindowWidth
 	}
-	if (x2 < 0) {
+	If (x2 < 0) {
 		x2 := 0
 	}
-	else if (x2 > WindowWidth) {
+	Else If (x2 > WindowWidth) {
 		x2 := WindowWidth
 	}
 	y1 := dyb * (x1 - xs + 0.5) / dx + b1
 	y2 := dyt * (x1 - xs + 0.5) / dx + t1
 	y3 := dyb * (x2 - xs + 0.5) / dx + b1
 	y4 := dyt * (x2 - xs + 0.5) / dx + t1
-	if (y1 < 0) {
+	If (y1 < 0) {
 		y1 := 0
 	}
-	else if (y1 > WindowHeight) {
+	Else If (y1 > WindowHeight) {
 		y1 := WindowHeight
 	}
-	if (y2 < 0) {
+	If (y2 < 0) {
 		y2 := 0
 	}
-	else if (y2 > WindowHeight) {
+	Else If (y2 > WindowHeight) {
 		y2 := WindowHeight
 	}
-	if (y3 < 0) {
+	If (y3 < 0) {
 		y3 := 0
 	}
-	else if (y3 > WindowHeight) {
+	Else If (y3 > WindowHeight) {
 		y3 := WindowHeight
 	}
-	if (y4 < 0) {
+	If (y4 < 0) {
 		y4 := 0
 	}
-	else if (y4 > WindowHeight) {
+	Else If (y4 > WindowHeight) {
 		y4 := WindowHeight
 	}
 	Polygon(x1 ',' y1 '|' x1 ',' y2 '|' x2 ',' y4 '|' x2 ',' y3, c)
@@ -277,23 +273,25 @@ DrawWall(x1, x2, b1, b2, t1, t2, c, s) {
 ClearBackground() {
 	global pBitmap
 	global G
+	global hBitmap
 
 	Gdip_DeleteGraphics(G)
 	Gdip_DisposeImage(pBitmap)
+	DeleteObject(hBitmap)
 	pBitmap := Gdip_CreateBitmap(Posw, Posh)
 	G := Gdip_GraphicsFromImage(pBitmap)
 }
 
 Dist(x1, y1, x2, y2) {
 	distance := Sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-	return distance
+	Return distance
 }
 
 Draw3D() {
 	global Player
 	s := 1
 	Loop (NumSect) {
-		Sectors[s].d := 0
+		Sectors[A_Index].d := 0
 		Loop (Sectors[s].we - (Sectors[s].ws + 1)) {
 			CS := Math.cosvar[Player.a + 1]
 			SN := Math.sinvar[Player.a + 1]
@@ -309,7 +307,7 @@ Draw3D() {
 	}
 	Loop (NumSect - 1) {
 		Loop (NumSect - (A_Index - 1) - 1) {
-			if (Sectors[A_Index].d < Sectors[A_Index + 1].d) {
+			If (Sectors[A_Index].d < Sectors[A_Index + 1].d) {
 				st := Sectors[A_Index]
 				Sectors[A_Index] := Sectors[A_Index + 1]
 				Sectors[A_Index + 1] := st
@@ -330,8 +328,8 @@ Draw3D() {
 			wy := [y1 * CS + x1 * SN, y2 * CS + x2 * SN, y1 * CS + x1 * SN, y2 * CS + x2 * SN]
 			Sectors[s].d += Dist(0, 0, (wx[1] + wx[2]) / 2, (wy[1] + wy[2]) / 2)
 			wz := [Sectors[s].z1 - Player.z + ((Player.l * wy[1]) / 32), Sectors[s].z1 - Player.z + ((Player.l * wy[2]) / 32), (0 - Player.z + ((Player.l * wy[1]) / 32)) + Sectors[s].z2, (0 - Player.z + ((Player.l * wy[2]) / 32)) + Sectors[s].z2]
-			if (wy[1] > 1 && wy[2] > 1) {
-				if (wy[1] < 1) {
+			If (wy[1] > 1 && wy[2] > 1) {
+				If (wy[1] < 1) {
 					clip := ClipBehindPlayer(wx[1], wy[1], wz[1], wx[2], wy[2], wz[2])
 					wx[1] := clip[1]
 					wy[1] := clip[2]
@@ -341,7 +339,7 @@ Draw3D() {
 					wy[3] := clip[2]
 					wz[3] := clip[3]
 				}
-				if (wy[2] < 1) {
+				If (wy[2] < 1) {
 					clip := ClipBehindPlayer(wx[2], wy[2], wz[2], wx[1], wy[1], wz[1])
 					wx[2] := clip[1]
 					wy[2] := clip[2]
@@ -359,8 +357,14 @@ Draw3D() {
 		Sectors[s].d /= (Sectors[s].we - Sectors[s].ws)
 		s++
 	}
+	global hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
 	SetImage(Canvas.Hwnd, hBitmap)
-	return
+	Return
+}
+
+Print(string) {
+	DllCall("AllocConsole")
+	FileAppend(string "`n", "*")
 }
 
 Display() {
@@ -369,13 +373,13 @@ Display() {
 		Draw3D()
 		ClearBackground()
 	}
-	return
+	Return
 }
 
 Gui_Close(GuiObj) {
 	GuiClose:
 		ExitApp
-	return
+	Return
 }
 
 ExitFunc(ExitReason, ExitCode)
