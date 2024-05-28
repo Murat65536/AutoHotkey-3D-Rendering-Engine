@@ -64,18 +64,14 @@ Player := {
 	l: 0
 }
 
-wallLen := 1
 walls := Array()
 Loop (30) {
-	walls.InsertAt(wallLen, {x1: unset, y1: unset, x2: unset, y2: unset, c: unset})
-	wallLen++
+	walls.InsertAt(A_Index, {x1: unset, y1: unset, x2: unset, y2: unset, c: unset})
 }
 
-sectorLen := 1
 Sectors := Array()
 Loop (30) {
-	Sectors.InsertAt(sectorLen, {ws: unset, we: unset, z1: unset, z2: unset, d: unset, c1: unset, c2: unset})
-	sectorLen++
+	Sectors.InsertAt(A_Index, {ws: unset, we: unset, z1: unset, z2: unset, d: unset, c1: unset, c2: unset})
 }
 
 Canvas.GetPos(,, &Posw, &Posh)
@@ -201,8 +197,6 @@ MovePlayer() {
 		Player.x += dy
 		Player.y -= dx
 	}
-	Print("dx: " dx)
-	Print("dy: " dy)
 }
 
 ClipBehindPlayer(x1, y1, z1, x2, y2, z2) {
@@ -291,7 +285,7 @@ Draw3D() {
 	s := 1
 	Loop (NumSect) {
 		Sectors[A_Index].d := 0
-		Loop (Sectors[s].we - (Sectors[s].ws + 1)) {
+		Loop (Sectors[A_Index].we - (Sectors[A_Index].ws + 1)) {
 			CS := Math.cosvar[Player.a + 1]
 			SN := Math.sinvar[Player.a + 1]
 			x1 := walls[Sectors[s].ws + A_Index].x1 - Player.x
@@ -315,17 +309,13 @@ Draw3D() {
 	}
 	s := 1
 	Loop (NumSect) {
-		Sectors[A_Index].d := 0
-		Loop (Sectors[s].we - Sectors[s].ws) {
-			CS := Math.cosvar[Player.a + 1]
-			SN := Math.sinvar[Player.a + 1]
+		Loop (Sectors[A_Index].we - Sectors[A_Index].ws) {
 			x1 := walls[Sectors[s].ws + A_Index].x1 - Player.x
 			x2 := walls[Sectors[s].ws + A_Index].x2 - Player.x
 			y1 := walls[Sectors[s].ws + A_Index].y1 - Player.y
 			y2 := walls[Sectors[s].ws + A_Index].y2 - Player.y
 			wx := [x1 * CS - y1 * SN, x2 * CS - y2 * SN, x1 * CS - y1 * SN, x2 * CS - y2 * SN]
 			wy := [y1 * CS + x1 * SN, y2 * CS + x2 * SN, y1 * CS + x1 * SN, y2 * CS + x2 * SN]
-			Sectors[s].d += Dist(0, 0, (wx[1] + wx[2]) / 2, (wy[1] + wy[2]) / 2)
 			wz := [Sectors[s].z1 - Player.z + ((Player.l * wy[1]) / 32), Sectors[s].z1 - Player.z + ((Player.l * wy[2]) / 32), (0 - Player.z + ((Player.l * wy[1]) / 32)) + Sectors[s].z2, (0 - Player.z + ((Player.l * wy[2]) / 32)) + Sectors[s].z2]
 			If (wy[1] > 1 && wy[2] > 1) {
 				If (wy[1] < 1) {
@@ -353,7 +343,7 @@ Draw3D() {
 				DrawWall(wx[1], wx[2], wy[1], wy[2], wy[3], wy[4], walls[Sectors[s].ws + A_Index].c, s)
 			}
 		}
-		Sectors[s].d /= (Sectors[s].we - Sectors[s].ws)
+		Sectors[A_Index].d /= (Sectors[s].we - Sectors[A_Index].ws)
 		s++
 	}
 	hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
