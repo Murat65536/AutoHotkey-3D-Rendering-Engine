@@ -71,7 +71,7 @@ Loop (30) {
 
 Sectors := Array()
 Loop (30) {
-	Sectors.InsertAt(A_Index, {ws: unset, we: unset, z1: unset, z2: unset, d: unset, c1: unset, c2: unset})
+	Sectors.InsertAt(A_Index, {ws: unset, we: unset, z1: unset, z2: unset, d: unset, c1: unset, c2: unset, sw: [], surface: unset})
 }
 
 Canvas.GetPos(,, &Posw, &Posh)
@@ -262,7 +262,9 @@ DrawWall(x1, x2, b1, b2, t1, t2, c, s) {
 	Else If (y4 > WindowHeight) {
 		y4 := WindowHeight
 	}
-	Polygon(x1 ',' y1 '|' x1 ',' y2 '|' x2 ',' y4 '|' x2 ',' y3, c)
+	If ((x2 - x1) * 2 > 0) {
+		Polygon(x1 ',' y1 '|' x1 ',' y2 '|' x2 ',' y4 '|' x2 ',' y3, c)
+	}
 }
 
 ClearBackground() {
@@ -282,15 +284,17 @@ Dist(x1, y1, x2, y2) {
 
 Draw3D() {
 	global Player
+	
+	CS := Math.cosvar[Player.a + 1]
+	SN := Math.sinvar[Player.a + 1]
+	
 	s := 1
 	Loop (NumSect) {
 		Sectors[A_Index].d := 0
 		Loop (Sectors[A_Index].we - (Sectors[A_Index].ws + 1)) {
-			CS := Math.cosvar[Player.a + 1]
-			SN := Math.sinvar[Player.a + 1]
 			x1 := walls[Sectors[s].ws + A_Index].x1 - Player.x
-			y1 := walls[Sectors[s].ws + A_Index].y1 - Player.y
 			x2 := walls[Sectors[s].ws + A_Index].x2 - Player.x
+			y1 := walls[Sectors[s].ws + A_Index].y1 - Player.y
 			y2 := walls[Sectors[s].ws + A_Index].y2 - Player.y
 			wx := [x1 * CS - y1 * SN, x2 * CS - y2 * SN, x1 * CS - y1 * SN, x2 * CS - y2 * SN]
 			wy := [y1 * CS + x1 * SN, y2 * CS + x2 * SN, y1 * CS + x1 * SN, y2 * CS + x2 * SN]
