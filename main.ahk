@@ -66,12 +66,12 @@ Player := {
 
 walls := Array()
 Loop (30) {
-	walls.InsertAt(A_Index, {x1: unset, y1: unset, x2: unset, y2: unset, c: unset})
+	walls.InsertAt(A_Index, {x1: 0, y1: 0, x2: 0, y2: 0, c: 0})
 }
 
 Sectors := Array()
 Loop (30) {
-	Sectors.InsertAt(A_Index, {ws: unset, we: unset, z1: unset, z2: unset, d: unset, c1: unset, c2: unset, sw: [], surface: unset})
+	Sectors.InsertAt(A_Index, {ws: 0, we: 0, z1: 0, z2: 0, d: 0, c1: 0, c2: 0, sw: [], surface: 0})
 }
 
 Canvas.GetPos(,, &Posw, &Posh)
