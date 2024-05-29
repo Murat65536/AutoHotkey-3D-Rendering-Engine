@@ -354,8 +354,7 @@ Draw3D() {
 }
 
 Print(string) {
-	DllCall("AllocConsole")
-	FileAppend(string "`n", "*")
+	FileAppend(string "`r", "*")
 }
 
 Display() {
