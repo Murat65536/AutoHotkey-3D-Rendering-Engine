@@ -262,9 +262,7 @@ DrawWall(x1, x2, b1, b2, t1, t2, c, s) {
 	Else If (y4 > WindowHeight) {
 		y4 := WindowHeight
 	}
-	If ((x2 - x1) * 2 > 0) {
-		Polygon(x1 ',' y1 '|' x1 ',' y2 '|' x2 ',' y4 '|' x2 ',' y3, c)
-	}
+	Polygon(x1 ',' y1 '|' x1 ',' y2 '|' x2 ',' y4 '|' x2 ',' y3, c)
 }
 
 ClearBackground() {
@@ -346,7 +344,9 @@ Draw3D() {
 			}
 			wx := [wx[1] * 200 / wy[1] + (WindowWidth / 2), wx[2] * 200 / wy[2] + (WindowWidth / 2), wx[3] * 200 / wy[3] + (WindowWidth / 2), wx[4] * 200 / wy[4] + (WindowWidth / 2)]
 			wy := [wz[1] * 200 / wy[1] + (WindowHeight / 2), wz[2] * 200 / wy[2] + (WindowHeight / 2), wz[3] * 200 / wy[3] + (WindowHeight / 2), wz[4] * 200 / wy[4] + (WindowHeight / 2)]
-			DrawWall(wx[1], wx[2], wy[1], wy[2], wy[3], wy[4], walls[Sectors[s].ws + A_Index].c, s)
+			If ((wx[2] - wx[1]) * 2 > 0) {
+				DrawWall(wx[1], wx[2], wy[1], wy[2], wy[3], wy[4], walls[Sectors[s].ws + A_Index].c, s)
+			}
 		}
 		Sectors[A_Index].d /= (Sectors[s].we - Sectors[A_Index].ws)
 		s++
