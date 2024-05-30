@@ -287,9 +287,6 @@ DrawWall(x1, x2, b1, b2, t1, t2, c, s) {
 	Else If (x1 and x2 != WindowWidth) {
 		Draw := true
 	}
-	Print('x1: ' x1)
-	Print('x2: ' x2)
-	Print('Draw: ' Draw)
 	Polygon(x1 ',' y1 '|' x1 ',' y2 '|' x2 ',' y4 '|' x2 ',' y3, c)
 }
 
