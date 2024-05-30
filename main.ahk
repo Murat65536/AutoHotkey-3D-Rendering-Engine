@@ -12,7 +12,7 @@ OnExit ExitFunc
 
 WindowWidth := 640
 WindowHeight := 480
-Window := Gui('-DPIScale +E0x02000000 +E0x00080000')
+Window := Gui('+E0x02000000 +E0x00080000')
 Window.OnEvent('Close', Gui_Close)
 Window.Title := '3D Rendering Engine'
 Window.BackColor := '000000'
@@ -66,13 +66,31 @@ Player := {
 
 walls := Array()
 Loop (30) {
-	walls.InsertAt(A_Index, {x1: 0, y1: 0, x2: 0, y2: 0, c: 0})
+	walls.InsertAt(A_Index, {
+		x1: 0,
+		y1: 0,
+		x2: 0,
+		y2: 0,
+		c: 0
+	})
 }
 
 Sectors := Array()
 Loop (30) {
-	Sectors.InsertAt(A_Index, {ws: 0, we: 0, z1: 0, z2: 0, d: 0, c1: 0, c2: 0, sw: [], surface: 0})
+	Sectors.InsertAt(A_Index, {
+		ws: 0,
+		we: 0,
+		z1: 0,
+		z2: 0,
+		d: 0,
+		c1: 0,
+		c2: 0,
+		sw: [],
+		surface: 0
+	})
 }
+
+Draw := false
 
 Canvas.GetPos(,, &Posw, &Posh)
 pBitmap := Gdip_CreateBitmap(Posw, Posh)
@@ -131,7 +149,6 @@ Polygon(coords, color) {
 		default:
 			rgb := 0x00000000
 	}
-	Gdip_SetSmoothingMode(G, 4)
 	pBrush := Gdip_BrushCreateSolid(rgb)
 	Gdip_FillPolygon(G, pBrush, coords)
 	Gdip_DeleteBrush(pBrush)
@@ -215,6 +232,8 @@ ClipBehindPlayer(x1, y1, z1, x2, y2, z2) {
 }
 
 DrawWall(x1, x2, b1, b2, t1, t2, c, s) {
+	global Draw
+
 	dyb := b2 - b1
 	dyt := t2 - t1
 	dx := x2 - x1
@@ -262,17 +281,28 @@ DrawWall(x1, x2, b1, b2, t1, t2, c, s) {
 	Else If (y4 > WindowHeight) {
 		y4 := WindowHeight
 	}
+	If (x1 and x2 != 0) {
+		Draw := true
+	}
+	Else If (x1 and x2 != WindowWidth) {
+		Draw := true
+	}
+	Print('x1: ' x1)
+	Print('x2: ' x2)
+	Print('Draw: ' Draw)
 	Polygon(x1 ',' y1 '|' x1 ',' y2 '|' x2 ',' y4 '|' x2 ',' y3, c)
 }
 
 ClearBackground() {
 	global pBitmap
 	global G
+	global Draw
 
 	Gdip_DeleteGraphics(G)
 	Gdip_DisposeImage(pBitmap)
 	pBitmap := Gdip_CreateBitmap(Posw, Posh)
 	G := Gdip_GraphicsFromImage(pBitmap)
+	Draw := false
 }
 
 Dist(x1, y1, x2, y2) {
@@ -282,6 +312,7 @@ Dist(x1, y1, x2, y2) {
 
 Draw3D() {
 	global Player
+	global Draw
 	
 	CS := Math.cosvar[Player.a + 1]
 	SN := Math.sinvar[Player.a + 1]
@@ -363,14 +394,20 @@ Draw3D() {
 		Sectors[A_Index].d /= (Sectors[s].we - Sectors[A_Index].ws)
 		s++
 	}
-	hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
-	SetImage(Canvas.Hwnd, hBitmap)
-	DeleteObject(hBitmap)
+	if (Draw) {
+		hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
+		SetImage(Canvas.Hwnd, hBitmap)
+		DeleteObject(hBitmap)
+	}
+	else {
+		SetImage(Canvas.Hwnd, 0)
+	}
 	Return
 }
 
 Print(string) {
-	FileAppend(string "`r", "*")
+	DllCall('AllocConsole')
+	FileAppend(string '`n', '*')
 }
 
 Display() {
