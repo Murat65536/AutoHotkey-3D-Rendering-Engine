@@ -241,46 +241,10 @@ DrawWall(x1, x2, b1, b2, t1, t2, c, s) {
 		dx := 1
 	}
 	xs := x1
-	If (x1 < 0) {
-		x1 := 0
-	}
-	Else If (x1 > WindowWidth) {
-		x1 := WindowWidth
-	}
-	If (x2 < 0) {
-		x2 := 0
-	}
-	Else If (x2 > WindowWidth) {
-		x2 := WindowWidth
-	}
 	y1 := dyb * (x1 - xs + 0.5) / dx + b1
 	y2 := dyt * (x1 - xs + 0.5) / dx + t1
 	y3 := dyb * (x2 - xs + 0.5) / dx + b1
 	y4 := dyt * (x2 - xs + 0.5) / dx + t1
-	If (y1 < 0) {
-		y1 := 0
-	}
-	Else If (y1 > WindowHeight) {
-		y1 := WindowHeight
-	}
-	If (y2 < 0) {
-		y2 := 0
-	}
-	Else If (y2 > WindowHeight) {
-		y2 := WindowHeight
-	}
-	If (y3 < 0) {
-		y3 := 0
-	}
-	Else If (y3 > WindowHeight) {
-		y3 := WindowHeight
-	}
-	If (y4 < 0) {
-		y4 := 0
-	}
-	Else If (y4 > WindowHeight) {
-		y4 := WindowHeight
-	}
 	If (x1 and x2 != 0) {
 		Draw := true
 	}
